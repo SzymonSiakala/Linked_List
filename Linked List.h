@@ -20,10 +20,11 @@ public:
 
     Linked_List(const std::initializer_list<T>& list) : Linked_List()
     {
-        for (auto it = std::rbegin(list); it != std::rend(list); ++it)
-{
-            push_front(*it);
+        for (const T& value : list)
+        {
+            push_front(value);
         }
+        reverse();
     }
 
     Linked_List(Linked_List&& list) noexcept
@@ -74,9 +75,9 @@ public:
     template <typename Input_Iterator>
     void push_front_range(Input_Iterator first, Input_Iterator last)
     {
-        for (; first != last; ++first)
+        for (auto it = std::make_reverse_iterator(last); it != std::make_reverse_iterator(first); ++it)
         {
-            push_front(*first);
+            push_front(*it);
         }
     }
 
@@ -87,15 +88,16 @@ public:
         {
             push_front(value);
         }
+        reverse();
     }
 
     template <typename Input_Iterator>
     void assign_range(Input_Iterator first, Input_Iterator last)
     {
         clear();
-        for (; first != last; ++first)
+        for (auto it = std::make_reverse_iterator(last); it != std::make_reverse_iterator(first); ++it)
         {
-            push_front(*first);
+            push_front(*it);
         }
     }
 
@@ -200,6 +202,50 @@ public:
         }
     }
 
+    void reverse()
+    {
+        if (!head || !head->next)
+        {
+            return;
+        }
+
+        Linked_List<T> temp_list;
+        Node* current = head.get();
+
+        while (current)
+        {
+            temp_list.push_front(current->data);
+            current = current->next.get();
+        }
+        head = std::move(temp_list.head);
+    }
+
+    void unique()
+    {
+        Node* prev = head.get();
+        Node* current = head.get();
+        Node* backup = head.get();
+
+        while (prev)
+        {
+            current = prev->next.get();
+            while (current)
+            {
+                if (prev->data == current->data)
+                {
+                    remove(current);
+                    current = backup;
+                }
+                else
+                {
+                    backup = current;
+                }
+                current = current->next.get();
+            }
+            prev = prev->next.get();
+        }
+    }
+
     bool empty() const
     {
         return head == nullptr;
@@ -264,64 +310,4 @@ public:
 
         return new_list;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //// Reverses the order of the elements
-    //void reverse() {
-    //    if (!head || !head->next) {
-    //        return;
-    //    }
-
-    //    Node* prev = nullptr;
-    //    Node* current = head.get();
-    //    Node* next_node = nullptr;
-
-    //    while (current) {
-    //        next_node = current->next.get();
-    //        current->next = std::move(prev);
-    //        prev = current;
-    //        current = next_node;
-    //    }
-
-    //    head = std::move(prev);
-    //}
-
-    //// Removes consecutive duplicate elements
-    //void unique() {
-    //    Node* current = head.get();
-
-    //    while (current && current->next) {
-    //        if (current->data == current->next->data) {
-    //            current->next = std::move(current->next->next);
-    //        }
-    //        else {
-    //            current = current->next.get();
-    //        }
-    //    }
-
-    //}
-
 };
